@@ -7,11 +7,14 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    MSize = (10,10)
-    phiExt = 0
+    MSize = (100,100)
+    phiExt = 0.0
     phiInt = 100
     w = 2   # Correction factor w, belongs [0,2]
-    pValue = 1    # Desired precision value
+    pValue = 1E-8    # Desired precision value
+    x = np.linspace(0,10,MSize[0])
+    y = np.linspace(0,10,MSize[1])
+    side = 20
 
     M = np.random.random_integers( 10, phiInt-1, MSize ) # Initial matrix
     M[0,:] = M[-1,:] = M[:,0] = M[:,-1] = phiExt # Set the external potential boundary to phiExt
@@ -19,7 +22,7 @@ def main():
     if MSize[0] % 2 == 0 :   # Odd row/column square matrix
 
         med = MSize[0]/2.0
-        M[med-2:med+2,med-2:med+2] = phiInt # Set the inner potential
+        M[med-side:med+side,med-side:med+side] = phiInt # Set the iternal potential
 
     else:                    # Even row/column square matrix
 
@@ -28,28 +31,33 @@ def main():
 
     M = np.asfarray(M)
     flag = True
+    count = 0
+    error = []
+    iteration = []
     while flag:
 
-        for i in np.arange(0,MSize[0]-2):    # Odd i positions
+        for i in xrange(0,MSize[0]-2):    # Odd i positions"
 
-            for j in np.arange(0,MSize[0]-2):    # Odd j positions
+            for j in xrange(0,MSize[1]-2):    # Odd j positions
 
                 if M[i+1,j+1] != phiInt:
-                    #phiO = M[i+1,j+1]
                     prom = 0.25*( M[i+1,j] + M[i,j+1] + M[i+1,j+2] + M[i+2,j+1] )
+                    R = prom - M[i+1,j+1]
                     M[i+1,j+1] = prom
-                    #R = phiO - M[i+1,j+1]
-                    ## #phiN = phiN + w*R
-                    ## if abs(R) < pValue:
-                    ##     flag = False
-                    ##     raw_input()
-                    ## print M
+                    count += 1
+                    print count, '\t', abs(R)
+                    ## M[i+1,j+1] = M[i+1,j+1] + w*R
+                    if abs(R) < pValue:
+                        flag = False
+                        print '<------------------------------------>'
 
-    plt.contourf(M,100)
+    plt.contourf(x,y,M,100)
+    # plt.contour(M,100)
+    plt.xticks((0,1),('',''))
+    plt.yticks((0,1),('',''))
     plt.colorbar()
     plt.show()
 
-    ## np.savetxt("matrix.txt", M)
 
 if __name__ == '__main__':
 
