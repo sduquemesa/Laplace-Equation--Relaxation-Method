@@ -1,0 +1,383 @@
+\documentclass[9pt,serif]{beamer}
+\usetheme{udem}
+\usepackage[english,spanish,activeacute]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{fourier}
+\usepackage{amsmath,amssymb,stmaryrd}
+\usepackage{color}
+\usepackage{ragged2e}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+
+\title{Solución de la Ecuación de Laplace a través del método de relajación}
+\author[S. Duque]{Sebastián Duque Mesa}
+\institute{\includegraphics[scale=0.5]{logo_UdeA}\\\vspace{0.2cm}Instituto de Física}
+
+\date{Mayo de 2010}
+
+\AtBeginSection []
+{\begin{frame}
+\tableofcontents[currentsection]
+\end{frame}}
+
+
+\begin{document}
+\justifying
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \tableofcontents[]
+\end{frame}
+
+\section{Introducción}
+
+\begin{frame}
+  \begin{block}{Introducción}\justifying
+    Es sencillo demostrar que se puede calcular el potencial en distribuciones de carga utilizando solo aritmética. Si partimos de la ecuación de Laplace es sencillo demostrar que el potencial en un punto dado es el promedio aritmético de los potenciales en los puntos adyacentes.
+
+A partir de esta solución es mas fácil hacer cálculos de potenciales en configuraciones que no tienen una solución analítica sencilla.
+  \end{block}
+\end{frame}
+
+\section{Metódo de las diferencias finitas}
+
+\subsection{Diferencias finitas}
+
+\begin{frame}
+  \frametitle{Diferencias finitas}
+  Es una expresión de la forma $f(x_i)-f(x_{i\pm 1})$. Si lo anterior se divide por $x_i-x_{i\pm 1}$ obtenemos una expresión similar al cociente diferencial. 
+
+  \begin{block}{Diferencia posterior}
+    \begin{equation}
+      \label{eq:difpost}
+      \Delta f(x) = \frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}
+    \end{equation}
+  \end{block}
+  
+  \begin{block}{Diferencia anterior}
+    \begin{equation}
+      \label{eq:difanterior}
+      \Delta f(x) = \frac{f(x_{i})-f(x_{i-1})}{x_{i}-x_{i-1}}
+    \end{equation}
+  \end{block}
+
+  \begin{block}{Diferencia central}
+    \begin{equation}
+      \label{eq:difcentral}
+      \Delta f(x) = \frac{f(x_{i+1})-f(x_{i-1})}{x_{i+1}-x_{i-1}}
+    \end{equation}
+  \end{block}
+
+\end{frame}
+
+\subsection{Ecuación de Poisson}
+
+\begin{frame}
+  \frametitle{Ecuación de Poisson}
+  \framesubtitle{Aproximación a través de diferencias finitas}
+
+  Consideremos el caso unidimensional de la ecuación de Poisson:
+
+  \begin{equation}
+    \label{eq:poisson}
+    \frac{\partial}{\partial x} \frac{\partial \phi(x)}{\partial x} = - \frac{\rho(x)}{\epsilon_0}
+  \end{equation}
+
+  si $\phi(x)$ y $\rho(x)$ son funciones continuas, entonces:
+
+  \begin{eqnarray}
+    \label{eq:poissondiscreta}
+    \frac{d\phi}{dx} \approx \frac{\phi_i - \phi_{i-1}}{x_i - x_{i-q}} && \frac{d}{dx} \frac{\phi_i-\phi_{i-1}}{x_i-x_{i-1}} = -\frac{\rho_i}{\epsilon_0}
+  \end{eqnarray}
+
+  \begin{block}{}
+    Resolviendo (\ref{eq:poisson}) para $\phi_i$, obtenemos:
+    \begin{equation}
+      \label{eq:phi_i}
+      \phi_i = \frac{ K_{i+1} \phi_{i+1} + K_{i-1}\phi_{i-1} + \rho_i(x_{i+1}-x_{i-1}) }{K_{i+1}+K_{i-1}}
+    \end{equation}
+  \end{block}
+
+  donde $K_{i+1} = 1/(x_{i+1}-x_{i})$ y $K_{i-1} = 1/(x_i-x_{i-1})$
+
+\end{frame}
+
+\begin{frame}
+
+  Ahora hallamos la solución bidimensional de $\phi$:
+
+  \begin{equation}
+    \label{eq:phi_ij}
+    \phi_{ij} = \frac{ K_{i+1,j}\; \phi_{i+1,j} + K_{i-1,j}\; \phi_{i-1,j} + K_{i,j+1}\; \phi_{i,j+1} + K_{i,j-1}\; \phi_{i,j-1}}{K_{i+1,j}+K_{i-1,j}+K_{i,j+1}+K_{i,j-1}}
+  \end{equation}
+  
+  donde
+
+  \begin{eqnarray}
+    \label{eq:ks}
+    K_{i+1,j}  = \frac{1}{(x_{i+1}-x_i)(x_{i+1}-x_{i-1})} && K_{i-1,j}  = \frac{1}{(x_{i}-x_{i-1})(x_{i+1}-x_{i-1})}\\
+    K_{i,j+1}  = \frac{1}{(y_{i+1}-y_i)(y_{i+1}-y_{i-1})} && K_{i,j-1}  = \frac{1}{(y_{i}-y_{i-1})(y_{i+1}-y_{i-1})}
+  \end{eqnarray}
+
+  \begin{block}{}
+    Si consideramos el caso de una rejilla uniforme y sin carga interior, de la ecuación (\ref{eq:phi_ij}) se obtiene que:
+    
+    \begin{equation}
+      \label{eq:phiprom}
+      \phi_{ij} = \frac{1}{4} \left(  \phi_{i+1,j} + \phi_{i-1,j} + \phi_{i,j+1} + \phi_{i,j-1} \right)
+    \end{equation}
+
+  \end{block}
+
+\end{frame}
+
+\section{Método variacional}
+
+\begin{frame}
+  \frametitle{Método variacional}
+  Si consideramos el espaciado $h$ de la rejilla suficientemente pequeño, entonces
+  
+  
+  
+  \begin{eqnarray}
+    \label{eq:derivatives}
+    \left( \frac{\partial \phi}{\partial x}\right)_{i+1,j+1} = \frac{1}{h} \left( \phi_{i+1,j} - \phi_{i,j} \right) &&  \left( \frac{\partial \phi}{\partial y}\right)_{i+1,j+1} = \frac{1}{h} \left( \phi_{i,j+1} - \phi_{i,j} \right)
+  \end{eqnarray}
+
+
+  \begin{wrapfigure}{r}{0.5\textwidth}
+    \vspace{-18pt}
+    \hspace{50pt}
+    \includegraphics[width=0.28\textwidth]{cartesiano}
+  \end{wrapfigure}
+  
+ Sea $I[\Phi]$ un funcional integral sobre S
+
+ \begin{equation*}
+   \label{eq:functional}
+   I = \frac{1}{2} \int_0^{h/2} dx \int_0^{h/2} dy\; \left[  \left( \frac{\partial \phi}{\partial x}\right)^2 + \left( \frac{\partial \phi}{\partial y}\right)^2 \right]
+ \end{equation*}
+ 
+\end{frame}
+
+\begin{frame}
+  
+  Aplicando las consideraciones anteriores al funcional y calculando sobre toda el área sombreada:
+
+  \begin{equation}
+    \label{eq:functionalapprox}
+    I \approx \frac{1}{4} \left[   (\phi_{i,j}-\phi_{i,j+1})^2 + (\phi_{i,j}-\phi_{i+1,j})^2 + (\phi_{i,j}-\phi_{i,j-1})^2 +  (\phi_{i,j}-\phi_{i-1,j})^2 \right]
+  \end{equation}
+  
+  \begin{block}{}
+    Optimizando (\ref{eq:functionalapprox}) respecto a $\phi_{i,j}$ obtenemos:
+    
+    \begin{equation}
+      \label{eq:1phi_opt}
+      (\phi_{i,j})_{opt} = \frac{1}{4} ( \phi_{i+1,j} + \phi_{i,j+1} + \phi_{i-1,j} + \phi_{i,j-1} )
+    \end{equation}
+  \end{block}
+
+\end{frame}
+
+\section{Expansiones de Taylor}
+
+\begin{frame}
+  \frametitle{Aproximación a través de series de Taylor}
+  
+  Si consideramos que $\phi(x,y)$ es una función bien comportada, y ademas que
+
+  \begin{equation}
+    \label{eq:laplace}
+    \pmb{\nabla}^2 \phi(x,y) = 0
+  \end{equation}
+
+  entonces
+
+  \begin{eqnarray}
+    \label{eq:taylorexp}
+    \phi_{i+1,j} = \phi_{i,j} + h\; \frac{\partial \phi}{\partial x} + \frac{1}{2} h^2\; \frac{\partial^2 \phi}{\partial x^2} && \phi_{i-1,j} = \phi_{i,j} - h\; \frac{\partial \phi}{\partial x} + \frac{1}{2} h^2\; \frac{\partial^2 \phi}{\partial x^2}\\
+     \phi_{i,j+1} = \phi_{i,j} + h\; \frac{\partial \phi}{\partial y} + \frac{1}{2} h^2\; \frac{\partial^2 \phi}{\partial y^2} && \phi_{i,j-1} = \phi_{i,j} - h\; \frac{\partial \phi}{\partial y} + \frac{1}{2} h^2\; \frac{\partial^2 \phi}{\partial y^2}
+  \end{eqnarray}
+
+\end{frame}
+
+\begin{frame}
+ 
+  Sumando las expansiones anteriores
+
+  \begin{equation}
+    \label{eq:sum}
+    \frac{1}{h^2} \left( \phi_{i+1,j} +\phi_{i-1,j} + \phi_{i,j+1} + \phi_{i,j-1} - 4\;\phi_{i,j} \right) = \frac{\partial^2 \phi}{\partial x^2} + \frac{\partial^2 \phi}{\partial y^2}
+  \end{equation}
+ 
+  \begin{block}{}
+    de las ecuaciones (\ref{eq:laplace}) y (\ref{eq:sum}) obtenemos
+
+    \begin{equation}
+      \label{eq:phipromtaylor}
+      \phi_{i,j} = \frac{1}{4} \left( \phi_{i+1,j} +\phi_{i-1,j} + \phi_{i,j+1} + \phi_{i,j-1} \right)
+    \end{equation}
+  \end{block}
+  
+\end{frame}
+
+\section{Métodos computacionales}
+
+\subsection{Iteración Jacobiana}
+
+\begin{frame}
+  \frametitle{Métodos computacionales}
+  \framesubtitle{Iteración Jacobiana}
+  
+
+  \begin{itemize}
+  \item Se escoge una rejilla cuadrada con espaciado  $h$ entre sus vértices adyacentes.
+  \item Se asignan los valores de los potenciales en las fronteras.
+  \item Se hace una suposición de los valores de los potenciales en los sitios de la rejilla diferentes de las fronteras.
+  \item El primer ciclo de iteración inicia con un recorrido sistemático de los sitios de la rejilla, hallando $\phi_{i,j}$ con los resultados mostrados anteriormente. Estos resultados se asignan a una nueva rejilla en sitios iguales.
+  \item Una vez que se ha calculado $\phi_{i,j}$ en cada uno de los puntos de la rejilla antigua, se reasigna la rejilla nueva como la antigua y el ciclo comienza nuevamente.
+  \item La iteración continua hasta que se alcanza algún nivel de error determinado.
+  \end{itemize}
+
+\end{frame}
+
+\subsection{Iteraciones tipo Gauss-Seidel}
+
+\begin{frame}
+  \frametitle{·}
+  \framesubtitle{Iteraciones tipo Gauss-Seidel}
+
+  \begin{itemize}
+  \item<1-> Se escoge una rejilla cuadrada con espaciado  $h$ entre sus vértices adyacentes.
+  \item<1-> Se asignan los valores de los potenciales en las fronteras.
+  \item<1-> Se hace una suposición de los valores de los potenciales en los sitios de la rejilla diferentes de las fronteras.
+  \item<2-|alert@2> El primer ciclo de iteración inicia con un recorrido sistemático de los sitios de la rejilla, hallando $\phi_{i,j}$ con los resultados mostrados anteriormente. Este resultados se asigna a la misma rejilla en la misma posición sobreescribiendo el valor anterior.
+  \item<3-> Una vez que se ha calculado $\phi_{i,j}$ en cada uno de los puntos de la rejilla antigua, se reasigna la rejilla nueva como la antigua y el ciclo comienza nuevamente.
+  \item<3-> La iteración continua hasta que se alcanza algún nivel de error determinado.
+  \end{itemize}
+
+\end{frame}
+
+\subsection{Método de sobre-relajacionés sucesivas}
+
+\begin{frame}
+  \frametitle{Método de sobre-relajacionés sucesivas}
+  
+  \begin{itemize}
+  \item Se escoge una rejilla cuadrada con espaciado  $h$ entre sus vértices adyacentes.
+  \item Se asignan los valores de los potenciales en las fronteras.
+  \item Los potenciales desconocidos de la rejilla se asignan a cero(opcional).
+  \item Se calcula el error residual $R_{n} = R_{n}-R_{n-1}$. La solución se puede mejorar si $\phi_{i,j}' = \phi_{i,j} + \omega R$.
+  \item Se inicia la iteración sistemática sobre las posiciones de la rejilla.
+   \item La iteración continua hasta alcanzar algún valor de $R_n$ previamente determinado.
+  \end{itemize}
+
+  \begin{block}{Relajación ordenada par-impar}
+    \begin{eqnarray}
+      \label{eq:oddevenparameters}
+      \rho = \frac{1}{2} \cos{\left(\pi\over h\right)} (1+h^2) && \omega_{opt} = \frac{2}{1+\sqrt{1-\rho^2}}
+    \end{eqnarray}
+  \end{block}
+
+\end{frame}
+
+\section{Resultados computacionales}
+
+\subsection{Capacitor de placas paralelas}
+
+\begin{frame}
+  \frametitle{Capacitor de placas paralelas}
+
+  \begin{figure}[c]
+    \centering
+    \includegraphics[scale=0.35]{capacitor}
+    % \caption{Capacitor de placas paralelas. Prueba de funcionamiento del algoritmo.}
+    \label{fig:capacitor}
+  \end{figure}
+  
+\end{frame}
+
+\subsection{Capacitor coaxial de sección cuadrada}
+
+\begin{frame}
+  \frametitle{Capacitor coaxial de sección cuadrada}
+  \begin{figure}[c]
+    \centering
+    \includegraphics[scale=0.35]{squareSection}
+    % \caption{}
+    \label{fig:squareSection}
+  \end{figure}
+\end{frame}
+
+\section{Conclusiones}
+
+\begin{frame}
+  \frametitle{Conclusiones}
+  \begin{block}{}
+    \begin{itemize}
+    \item Se puede generalizar el método para incluir la permeabilidad relativa dentro de la ecuación de Laplace y así calcular el potencial dentro de elementos dielécticos.
+    \item Incluso es posible realizar el calculo de la densidad de carga $\rho$ en un sistema como los mostrados anteriormente.
+    \item A partir de los cálculos numéricos realizados se pueden hallar aproximaciones a las funciones de potencial de cada sistema.
+    \item El método es extensible a sistemas tres-dimensionales.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{}\justifying
+  Fin de la presentación
+\end{block}  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Algoritmo en Python}
+  \framesubtitle{Capacitor de sección cuadrada}
+\begin{verbatim}
+while flag:
+
+  for i in xrange(0,MSize[0]-2):
+
+     for j in xrange(0,MSize[1]-2):
+
+         if M[i+1,j+1] != phiInt:
+             prom = 0.25*(M[i+1,j]+M[i,j+1]+M[i+1,j+2]+M[i+2,j+1])
+             R = prom - M[i+1,j+1]
+             M[i+1,j+1] =
+             count += 1
+             print count, '\t', abs(R)
+             ## M[i+1,j+1] = M[i+1,j+1] + w*R
+             if abs(R) < pValue:
+                 flag = False
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Algoritmo en Python}
+  \framesubtitle{Capacitor de placas paralelas}
+\begin{verbatim}
+while flag:
+
+  for i in xrange(0,MSize[0]-2):    # Odd i positions"
+
+     for j in xrange(0,MSize[1]-2):    # Odd j positions
+
+         if M[i+1,j+1] != phiInt:
+             prom = 0.25*(M[i+1,j]+M[i,j+1]+M[i+1,j+2]+M[i+2,j+1])
+             R = prom - M[i+1,j+1]
+             M[i+1,j+1] = prom
+             count += 1
+             print count, '\t', abs(R)
+             M[:,0] = M[:,1]
+             M[:,-1] = M[:,-2]
+             if abs(R) < pValue:
+                 flag = False
+\end{verbatim}
+\end{frame}
+
+\end{document}
+
+
